@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Normativas - DGCyE Provincia de Buenos Aires</title>
+    <style>
+        /* Estilos generales del Portal (diseño oscuro tipo dashboard institucional) */
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 20px; }
+        header { background: #1e293b; padding: 20px; border-radius: 8px; border-bottom: 4px solid #eab308; margin-bottom: 20px; }
+        h1 { margin: 0; font-size: 1.5rem; color: #facc15; }
+        .grid-layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 20px; }
+        .card { background: #1e293b; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #38bdf8; }
+        input, select { width: 100%; padding: 10px; margin-top: 8px; margin-bottom: 15px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: #fff; box-sizing: border-box; font-size: 1rem; }
+        .badge { background: #334155; color: #38bdf8; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+        .btn-descarga { background: #eab308; color: #0f172a; border: none; padding: 8px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 10px; }
+        .btn-descarga:hover, .btn-descarga:focus { background: #ca8a04; }
+        #estado { color: #94a3b8; font-size: 0.9rem; margin: 0 0 15px; }
+        /* Celulares: una sola columna (RNF2 del SRS) */
+        @media (max-width: 768px) {
+            body { padding: 12px; }
+            .grid-layout { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🏛️ DGCyE - Buscador Oficial de Normativas y Planes de Estudio (GBA)</h1>
+        <p>Sistema de Consulta Rápida para Instituciones Educativas de la Provincia de Buenos Aires</p>
+    </header>
+
+    <div class="grid-layout">
+        <!-- Columna principal: buscador y resultados -->
+        <main>
+            <div class="card">
+                <h3>🔎 Filtrado Dinámico de Resoluciones</h3>
+                <!-- oninput: cada letra que se escribe dispara el filtro -->
+                <label for="buscador">Palabra clave o número:</label>
+                <input type="text" id="buscador" placeholder="Buscar por número, palabra clave o descripción..." oninput="filtrarNormativas()">
+
+                <label for="filtro-tipo">Tipo de Norma:</label>
+                <select id="filtro-tipo" onchange="filtrarNormativas()">
+                    <option value="todos">Todas las normativas</option>
+                    <option value="Resolución">Resolución</option>
+                    <option value="Disposición">Disposición</option>
+                    <option value="Circular">Circular</option>
+                </select>
+            </div>
+
+            <!-- Cantidad de resultados y tiempo de filtrado (RNF1: menos de 100 ms) -->
+            <p id="estado" aria-live="polite"></p>
+            <!-- Aquí JavaScript inyecta las tarjetas de resultados -->
+            <div id="contenedor-resultados"></div>
+        </main>
+
+        <!-- Columna secundaria: año y descargas -->
+        <aside>
+            <div class="card">
+                <h3>📅 Calendario Histórico</h3>
+                <label for="filtro-anio">Seleccione periodo para auditoría:</label>
+                <select id="filtro-anio" onchange="filtrarNormativas()">
+                    <option value="todos">Todos los años</option>
+                    <option value="2026">2026 (Año Actual)</option>
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                </select>
+                <hr style="border-color: #334155; margin: 15px 0;">
+                <h4>📎 Anexos y Grillas</h4>
+                <p style="font-size: 0.90rem; color: #94a3b8;">Descargue los planes de estudio en formato tabular oficiales aprobados por la DGCyE.</p>
+                <a href="#" class="btn-descarga" onclick="alert('Descargando Anexo Excel Planes de Estudio GBA...'); return false;">⬇️ Descargar Planes de Estudio (.xlsx)</a>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. BASE DE DATOS LOCAL (datos simulados en memoria, no son normativas oficiales)
+        // ==========================================
+        const baseDatosNormativas = [
+            { id: 1, nro: "Resolución N° 651/26", tipo: "Resolución", anio: "2026", desc: "Aprueba pliegos y autoriza llamado a Licitación Pública para equipamiento técnico en EEST de GBA." },
+            { id: 2, nro: "Disposición N° 420/25", tipo: "Disposición", anio: "2025", desc: "Lineamientos curriculares para el ciclo superior de Escuelas Técnicas en Región Metropolitana." },
+            { id: 3, nro: "Circular N° 128/26", tipo: "Circular", anio: "2026", desc: "Cronograma oficial para Ferias de Ciencia, Arte y Tecnología (ACTE) en los 135 distritos de la Provincia." },
+            { id: 4, nro: "Resolución N° 969/25", tipo: "Resolución", anio: "2025", desc: "Marco regulatorio general para prácticas profesionalizantes en tecnicaturas superiores y secundarias." },
+            { id: 5, nro: "Circular N° 77/26", tipo: "Circular", anio: "2026", desc: "Calendario de mesas de examen de marzo para escuelas secundarias técnicas." },
+            { id: 6, nro: "Disposición N° 15/26", tipo: "Disposición", anio: "2026", desc: "Designación de inspectores de enseñanza técnica para la región educativa." },
+            { id: 7, nro: "Resolución N° 540/24", tipo: "Resolución", anio: "2024", desc: "Acuerdos Institucionales de Convivencia: lineamientos para su revisión bianual." },
+            { id: 8, nro: "Circular N° 210/26", tipo: "Circular", anio: "2026", desc: "Receso invernal y jornadas institucionales del segundo cuatrimestre." }
+        ];
+
+        // Minúsculas y sin tildes: "practicas" encuentra "prácticas"
+        const normalizar = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+
+        // ==========================================
+        // 2. FUNCIÓN PRINCIPAL DE FILTRADO (lógica O(n))
+        // ==========================================
+        function filtrarNormativas() {
+            const inicio = performance.now();
+
+            // A. Valores actuales que escribió o seleccionó el usuario
+            const texto = normalizar(document.getElementById('buscador').value.trim());
+            const tipoSeleccionado = document.getElementById('filtro-tipo').value;
+            const anioSeleccionado = document.getElementById('filtro-anio').value;
+
+            // B. .filter() sobre el arreglo en memoria RAM
+            const resultadosFiltrados = baseDatosNormativas.filter(item => {
+                const coincideTexto = normalizar(item.nro).includes(texto) || normalizar(item.desc).includes(texto);
+                const coincideTipo = (tipoSeleccionado === "todos") || (item.tipo === tipoSeleccionado);
+                const coincideAnio = (anioSeleccionado === "todos") || (item.anio === anioSeleccionado);
+                return coincideTexto && coincideTipo && coincideAnio;
+            });
+
+            // C. Dibujamos el resultado y mostramos cuánto tardó
+            renderizarResultados(resultadosFiltrados);
+            const ms = (performance.now() - inicio).toFixed(2);
+            document.getElementById('estado').textContent =
+                `${resultadosFiltrados.length} de ${baseDatosNormativas.length} normativas · filtrado en ${ms} ms`;
+        }
+
+        // ==========================================
+        // 3. FUNCIÓN DE RENDERIZADO EN EL DOM
+        // ==========================================
+        function renderizarResultados(lista) {
+            const contenedor = document.getElementById('contenedor-resultados');
+
+            if (lista.length === 0) {
+                contenedor.innerHTML = `<div class="card"><p>No se encontraron normativas coincidentes en los registros de la DGCyE.</p></div>`;
+                return;
+            }
+
+            contenedor.innerHTML = lista.map(item => `
+                <div class="card">
+                    <span class="badge">${item.tipo} - Año ${item.anio}</span>
+                    <h3 style="margin-top: 10px; color: #38bdf8;">${item.nro}</h3>
+                    <p>${item.desc}</p>
+                    <a href="#" class="btn-descarga" onclick="alert('Abriendo documento oficial asociado a ${item.nro}'); return false;">📄 Ver Anexo PDF</a>
+                </div>
+            `).join('');
+        }
+
+        // ==========================================
+        // 4. INICIALIZACIÓN AL CARGAR LA PÁGINA
+        // ==========================================
+        filtrarNormativas();
+    </script>
+</body>
+</html>

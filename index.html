@@ -174,14 +174,22 @@
                 if (!extractor) {
                     salida.textContent = "Cargando el modelo de Hugging Face (solo la primera vez, puede tardar un minuto)...";
                     const { pipeline } = await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2");
-                    extractor = await pipeline("feature-extraction", MODELO);
+                    extractor = await pipeline("feature-extraction", MODELO, { dtype: "q8" });
                     const textos = baseDatosNormativas.map(n => `${n.nro}. ${n.desc}`);
                     vectoresNormas = (await extractor(textos, { pooling: "mean", normalize: true })).tolist();
                 }
                 salida.textContent = "Pensando...";
                 const [vq] = (await extractor([q], { pooling: "mean", normalize: true })).tolist();
-                // Vectores normalizados: el producto punto es la similitud coseno
-                const puntajes = vectoresNormas.map(v => v.reduce((s, x, i) => s + x * vq[i], 0));
+                // Vectores normalizados: el producto punto es la similitud coseno.
+                // Se suma un refuerzo por raíces de palabras en común ("ciencias" ~ "ciencia"),
+                // porque las descripciones son cortas y el modelo solo a veces se confunde.
+                const raices = normalizar(q).split(/[^a-z0-9]+/).filter(p => p.length > 4).map(p => p.slice(0, 5));
+                const puntajes = vectoresNormas.map((v, k) => {
+                    const coseno = v.reduce((s, x, i) => s + x * vq[i], 0);
+                    const texto = normalizar(baseDatosNormativas[k].desc);
+                    const comunes = raices.filter(r => texto.includes(r)).length;
+                    return coseno + 0.25 * comunes;
+                });
                 const mejor = puntajes.indexOf(Math.max(...puntajes));
                 const n = baseDatosNormativas[mejor];
                 salida.textContent = `La normativa más relacionada es la ${n.nro} (${n.anio}): ${n.desc} ` +

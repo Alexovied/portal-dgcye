@@ -47,6 +47,15 @@
                 </select>
             </div>
 
+            <!-- Asistente IA: modelo de Hugging Face que corre en el navegador (Transformers.js) -->
+            <div class="card" style="border-left-color: #eab308;">
+                <h3>🤖 Asistente IA (Hugging Face)</h3>
+                <label for="pregunta-ia">Hacé una pregunta en lenguaje natural:</label>
+                <input type="text" id="pregunta-ia" placeholder="Ej: ¿Cuáles son las pautas para ferias de ciencias?">
+                <button class="btn-descarga" id="btn-ia" style="margin-top: 0;">Preguntar a la IA</button>
+                <p id="respuesta-ia" aria-live="polite" style="color: #cbd5e1;"></p>
+            </div>
+
             <!-- Cantidad de resultados y tiempo de filtrado (RNF1: menos de 100 ms) -->
             <p id="estado" aria-live="polite"></p>
             <!-- Aquí JavaScript inyecta las tarjetas de resultados -->
@@ -141,6 +150,55 @@
         // 4. INICIALIZACIÓN AL CARGAR LA PÁGINA
         // ==========================================
         filtrarNormativas();
+    </script>
+
+    <script type="module">
+        // ==========================================
+        // 5. ASISTENTE IA (Hugging Face Transformers.js)
+        // ==========================================
+        // Un modelo multilingüe convierte la pregunta y cada normativa en vectores (embeddings).
+        // La normativa con el vector más parecido (similitud coseno) es la respuesta.
+        // Corre en el navegador: no necesita token ni servidor. El modelo se baja una vez y queda en caché.
+        const MODELO = "Xenova/paraphrase-multilingual-MiniLM-L12-v2";
+        let extractor, vectoresNormas;
+
+        const pregunta = document.getElementById("pregunta-ia");
+        const boton = document.getElementById("btn-ia");
+        const salida = document.getElementById("respuesta-ia");
+
+        async function preguntarIA() {
+            const q = pregunta.value.trim();
+            if (!q) { salida.textContent = "Escribí una pregunta primero."; return; }
+            boton.disabled = true;
+            try {
+                if (!extractor) {
+                    salida.textContent = "Cargando el modelo de Hugging Face (solo la primera vez, puede tardar un minuto)...";
+                    const { pipeline } = await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2");
+                    extractor = await pipeline("feature-extraction", MODELO);
+                    const textos = baseDatosNormativas.map(n => `${n.nro}. ${n.desc}`);
+                    vectoresNormas = (await extractor(textos, { pooling: "mean", normalize: true })).tolist();
+                }
+                salida.textContent = "Pensando...";
+                const [vq] = (await extractor([q], { pooling: "mean", normalize: true })).tolist();
+                // Vectores normalizados: el producto punto es la similitud coseno
+                const puntajes = vectoresNormas.map(v => v.reduce((s, x, i) => s + x * vq[i], 0));
+                const mejor = puntajes.indexOf(Math.max(...puntajes));
+                const n = baseDatosNormativas[mejor];
+                salida.textContent = `La normativa más relacionada es la ${n.nro} (${n.anio}): ${n.desc} ` +
+                    `[similitud ${(puntajes[mejor] * 100).toFixed(0)}%]`;
+                document.getElementById("buscador").value = n.nro.split("N° ")[1];
+                document.getElementById("filtro-tipo").value = "todos";
+                document.getElementById("filtro-anio").value = "todos";
+                filtrarNormativas();
+            } catch (e) {
+                salida.textContent = "No se pudo usar la IA (revisá la conexión a internet). Detalle: " + e.message;
+            } finally {
+                boton.disabled = false;
+            }
+        }
+
+        boton.addEventListener("click", preguntarIA);
+        pregunta.addEventListener("keydown", e => { if (e.key === "Enter") preguntarIA(); });
     </script>
 </body>
 </html>

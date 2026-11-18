@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" font-family="Arial, sans-serif" font-size="14">
+  <rect width="1000" height="700" fill="#fff"/>
+  <!-- Encabezado -->
+  <rect x="0" y="0" width="1000" height="70" fill="#00a9c9"/>
+  <text x="24" y="44" font-size="24" font-weight="bold" fill="#fff">abc · Portal de Normativas DGCyE</text>
+  <text x="760" y="44" fill="#fff">Inicio | Normativas | Planes</text>
+  <!-- Buscador -->
+  <rect x="24" y="92" width="700" height="44" rx="6" fill="#fff" stroke="#888"/>
+  <text x="40" y="120" fill="#888">🔍 Buscar por número, palabra clave o tema… (filtra al escribir)</text>
+  <rect x="740" y="92" width="110" height="44" rx="6" fill="#eee" stroke="#888"/><text x="755" y="120">Tipo ▾</text>
+  <rect x="862" y="92" width="110" height="44" rx="6" fill="#eee" stroke="#888"/><text x="880" y="120">Año ▾</text>
+  <!-- Calendario -->
+  <rect x="24" y="160" width="280" height="300" rx="6" fill="#f6f6f6" stroke="#888"/>
+  <text x="40" y="188" font-weight="bold">Calendario histórico</text>
+  <text x="40" y="212">◀  Mayo 2026  ▶</text>
+  <g fill="#ddd" stroke="#aaa">
+    <rect x="40" y="228" width="30" height="30"/><rect x="76" y="228" width="30" height="30"/><rect x="112" y="228" width="30" height="30"/><rect x="148" y="228" width="30" height="30"/><rect x="184" y="228" width="30" height="30"/><rect x="220" y="228" width="30" height="30"/><rect x="256" y="228" width="30" height="30"/>
+    <rect x="40" y="264" width="30" height="30"/><rect x="76" y="264" width="30" height="30" fill="#00a9c9"/><rect x="112" y="264" width="30" height="30"/><rect x="148" y="264" width="30" height="30"/><rect x="184" y="264" width="30" height="30"/><rect x="220" y="264" width="30" height="30"/><rect x="256" y="264" width="30" height="30"/>
+    <rect x="40" y="300" width="30" height="30"/><rect x="76" y="300" width="30" height="30"/><rect x="112" y="300" width="30" height="30"/><rect x="148" y="300" width="30" height="30" fill="#00a9c9"/><rect x="184" y="300" width="30" height="30"/><rect x="220" y="300" width="30" height="30"/><rect x="256" y="300" width="30" height="30"/>
+  </g>
+  <text x="40" y="360" font-size="12">Días resaltados = hay normas publicadas.</text>
+  <text x="40" y="380" font-size="12">Click en un mes/día filtra la lista.</text>
+  <!-- Resultados -->
+  <text x="330" y="182" font-weight="bold">Resultados (3) — se actualizan sin recargar</text>
+  <g>
+    <rect x="330" y="196" width="642" height="80" rx="6" fill="#fff" stroke="#888"/>
+    <text x="346" y="222" font-weight="bold">Circular 128/26 · Mayo 2026</text>
+    <text x="346" y="246">Pautas organizativas para ferias de ciencia distritales…</text>
+    <text x="830" y="222" fill="#00a9c9">Ver anexos (1)</text>
+    <rect x="330" y="288" width="642" height="80" rx="6" fill="#fff" stroke="#888"/>
+    <text x="346" y="314" font-weight="bold">Resolución 651/26 · Octubre 2026</text>
+    <text x="346" y="338">Aprueba pliegos y autoriza llamada a Licitación Pública…</text>
+    <text x="830" y="314" fill="#00a9c9">Ver anexos (1)</text>
+    <rect x="330" y="380" width="642" height="80" rx="6" fill="#fff" stroke="#888"/>
+    <text x="346" y="406" font-weight="bold">Circular 77/26 · Marzo 2026</text>
+    <text x="346" y="430">Calendario de mesas de examen de marzo…</text>
+  </g>
+  <!-- Visor de anexos -->
+  <rect x="24" y="484" width="948" height="190" rx="6" fill="#f6f6f6" stroke="#888"/>
+  <text x="40" y="512" font-weight="bold">Visor de anexos — Disposición 420/25 · Plan de estudios 7° año (XLSX)</text>
+  <g fill="#fff" stroke="#aaa">
+    <rect x="40" y="526" width="300" height="30" fill="#ddd"/><rect x="340" y="526" width="150" height="30" fill="#ddd"/><rect x="490" y="526" width="150" height="30" fill="#ddd"/>
+    <rect x="40" y="556" width="300" height="30"/><rect x="340" y="556" width="150" height="30"/><rect x="490" y="556" width="150" height="30"/>
+    <rect x="40" y="586" width="300" height="30"/><rect x="340" y="586" width="150" height="30"/><rect x="490" y="586" width="150" height="30"/>
+  </g>
+  <text x="50" y="546">Materia</text><text x="350" y="546">Horas</text><text x="500" y="546">Año</text>
+  <text x="50" y="576">Prácticas Profesionalizantes</text><text x="350" y="576">200</text><text x="500" y="576">7°</text>
+  <text x="50" y="606">Proyecto de Sitios Web Dinámicos</text><text x="350" y="606">144</text><text x="500" y="606">7°</text>
+  <rect x="680" y="556" width="270" height="44" rx="6" fill="#00a9c9"/>
+  <text x="712" y="583" fill="#fff" font-weight="bold">⬇ Descargar original</text>
+  <text x="40" y="652" font-size="12">En celular: buscador arriba, calendario plegable, tarjetas a ancho completo y visor con scroll horizontal.</text>
+</svg>
